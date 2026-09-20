@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Journey Planner</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            color: #24292f;
+        }
+        form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-weight: 600;
+        }
+        select, button {
+            padding: 0.45rem 0.6rem;
+            font-size: 1rem;
+        }
+        button {
+            background: #1f6feb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .error {
+            color: #cf222e;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #d0d7de;
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<h1>Journey Planner</h1>
+
+<form th:action="@{/journey}" method="post">
+    <label for="fromStopId">From</label>
+    <select id="fromStopId" name="fromStopId">
+        <option value="">-- choose --</option>
+        <option th:each="stop : ${stops}" th:value="${stop.id}" th:text="${stop.name}"
+                th:selected="${selectedFrom != null and stop.id == selectedFrom}">station</option>
+    </select>
+
+    <label for="toStopId">To</label>
+    <select id="toStopId" name="toStopId">
+        <option value="">-- choose --</option>
+        <option th:each="stop : ${stops}" th:value="${stop.id}" th:text="${stop.name}"
+                th:selected="${selectedTo != null and stop.id == selectedTo}">station</option>
+    </select>
+
+    <fieldset>
+        <legend>Optimization</legend>
+        <label style="flex-direction: row; font-weight: 400">
+            <input type="radio" name="criteria" value="FASTEST"
+                   th:checked="${selectedCriteria == null or selectedCriteria == 'FASTEST'}">
+            Fastest
+        </label>
+        <label style="flex-direction: row; font-weight: 400">
+            <input type="radio" name="criteria" value="SHORTEST"
+                   th:checked="${selectedCriteria == 'SHORTEST'}">
+            Shortest
+        </label>
+    </fieldset>
+
+    <button type="submit">Find route</button>
+</form>
+
+<p class="error" th:if="${error}" th:text="${error}"></p>
+
+<div th:if="${journey != null}">
+    <h2 th:text="|${journey.origin} to ${journey.destination}|"></h2>
+    <p th:text="|Total time: ${journey.totalSeconds} s|"></p>
+    <img th:src="${mapDataUri}" alt="Route map"/>
+
+    <table>
+        <thead>
+        <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Mode</th>
+            <th>Duration, s</th>
+            <th>Distance, m</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="leg : ${journey.legs}">
+            <td th:text="${leg.from}"></td>
+            <td th:text="${leg.to}"></td>
+            <td th:text="${leg.mode}"></td>
+            <td th:text="${leg.seconds}"></td>
+            <td th:text="${leg.meters}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,9 +1,13 @@
 package org.aoizora.infrastructure.config;
 
+import org.aoizora.application.port.in.NetworkQueryUseCase;
 import org.aoizora.application.port.in.PlanJourneyUseCase;
 import org.aoizora.application.port.out.RouteFinder;
+import org.aoizora.application.port.out.RouteMapRenderer;
 import org.aoizora.application.port.out.TransportNetworkRepository;
 import org.aoizora.application.service.JourneyService;
+import org.aoizora.application.service.NetworkQueryService;
+import org.aoizora.infrastructure.adapter.out.map.SvgRouteMapRenderer;
 import org.aoizora.infrastructure.adapter.out.persistence.JdbcTransportNetworkRepository;
 import org.aoizora.infrastructure.adapter.out.routing.GraphRouteFinder;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +25,16 @@ public class BeanConfiguration {
     @Bean
     public RouteFinder routeFinder() {
         return new GraphRouteFinder();
+    }
+
+    @Bean
+    public NetworkQueryUseCase networkQueryUseCase(TransportNetworkRepository repository) {
+        return new NetworkQueryService(repository);
+    }
+
+    @Bean
+    public RouteMapRenderer routeMapRenderer() {
+        return new SvgRouteMapRenderer();
     }
 
     @Bean
