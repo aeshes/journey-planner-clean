@@ -19,22 +19,16 @@ public class JdbcTransportNetworkRepository implements TransportNetworkRepositor
 
     @Override
     public Optional<Stop> findStopById(long id) {
-        return jdbc.query(
-                "SELECT id, name, latitude, longitude FROM settlement WHERE id = ?",
-                rs -> rs.next()
-                        ? Optional.of(new Stop(rs.getLong("id"),
+        return jdbc.query("SELECT id, name, latitude, longitude FROM settlement WHERE id = ?", rs -> rs.next() ?
+                        Optional.of(new Stop(rs.getLong("id"),
                         rs.getString("name"),
                         rs.getDouble("latitude"),
-                        rs.getDouble("longitude")))
-                        : Optional.empty(),
-                id);
+                        rs.getDouble("longitude"))) : Optional.empty(), id);
     }
 
     @Override
     public List<Stop> findAllStops() {
-        return jdbc.query(
-                "SELECT id, name, latitude, longitude FROM settlement",
-                (rs, rowNum) -> new Stop(rs.getLong("id"),
+        return jdbc.query("SELECT id, name, latitude, longitude FROM settlement", (rs, rowNum) -> new Stop(rs.getLong("id"),
                         rs.getString("name"),
                         rs.getDouble("latitude"),
                         rs.getDouble("longitude")));
@@ -42,14 +36,12 @@ public class JdbcTransportNetworkRepository implements TransportNetworkRepositor
 
     @Override
     public List<Segment> findAllSegments() {
-        return jdbc.query(
-                "SELECT r.id, r.id_from, r.id_to, r.distance, " +
+        return jdbc.query("SELECT r.id, r.id_from, r.id_to, r.distance, " +
                         "       s1.name AS from_name, s1.latitude AS from_lat, s1.longitude AS from_lon, " +
                         "       s2.name AS to_name,   s2.latitude AS to_lat,   s2.longitude AS to_lon " +
                         "FROM road r " +
                         "JOIN settlement s1 ON s1.id = r.id_from " +
-                        "JOIN settlement s2 ON s2.id = r.id_to",
-                (rs, rowNum) -> {
+                        "JOIN settlement s2 ON s2.id = r.id_to", (rs, rowNum) -> {
                     Stop from = new Stop(rs.getLong("id_from"),
                             rs.getString("from_name"),
                             rs.getDouble("from_lat"),
