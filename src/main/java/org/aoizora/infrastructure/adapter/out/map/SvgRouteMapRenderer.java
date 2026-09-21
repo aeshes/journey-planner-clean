@@ -8,6 +8,7 @@ import org.aoizora.domain.model.Stop;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SvgRouteMapRenderer implements RouteMapRenderer {
 
@@ -24,7 +25,9 @@ public class SvgRouteMapRenderer implements RouteMapRenderer {
         double centerLat = (bounds[0] + bounds[2]) / 2.0;
         double centerLon = (bounds[1] + bounds[3]) / 2.0;
 
-        Set<Segment> routeSegments = Set.copyOf(journey.segments());
+        Set<String> routeEdges = journey.segments().stream()
+                .map(segment -> edgeKey(segment.from().id(), segment.to().id()))
+                .collect(Collectors.toSet());
 
         StringBuilder svg = new StringBuilder();
         svg.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"").append(WIDTH)
@@ -33,7 +36,8 @@ public class SvgRouteMapRenderer implements RouteMapRenderer {
         svg.append("<rect width=\"100%\" height=\"100%\" fill=\"#f4f6f8\"/>");
 
         for (Segment segment : segments) {
-            String stroke = routeSegments.contains(segment) ? "#1f6feb" : "#c9d2dc";
+            String stroke = routeEdges.contains(edgeKey(segment.from().id(), segment.to().id()))
+                    ? "#1f6feb" : "#c9d2dc";
             svg.append("<line x1=\"").append(px(segment.from().longitude(), centerLon, scale))
                     .append("\" y1=\"").append(py(segment.from().latitude(), centerLat, scale))
                     .append("\" x2=\"").append(px(segment.to().longitude(), centerLon, scale))
@@ -99,6 +103,10 @@ public class SvgRouteMapRenderer implements RouteMapRenderer {
     private double span(double min, double max) {
         double diff = max - min;
         return diff < 1e-9 ? 1.0 : diff;
+    }
+
+    private String edgeKey(long a, long b) {
+        return Math.min(a, b) + "-" + Math.max(a, b);
     }
 
     private String px(double lon, double centerLon, double scale) {

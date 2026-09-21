@@ -13,10 +13,10 @@ public record Journey(List<Segment> segments, Duration totalDuration) {
     }
 
     public Stop origin() {
-        return segments.get(0).from();
+        return segments.getFirst().from();
     }
 
     public Stop destination() {
-        return segments.get(segments.size() - 1).to();
+        return segments.getLast().to();
     }
 }

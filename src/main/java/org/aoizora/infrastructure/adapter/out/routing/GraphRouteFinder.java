@@ -61,10 +61,14 @@ public class GraphRouteFinder implements RouteFinder {
     private Optional<Journey> buildJourney(Map<Stop, Segment> bestSegment, Stop to) {
         List<Segment> path = new ArrayList<>();
         Stop cursor = to;
-        Segment segment;
-        while ((segment = bestSegment.get(cursor)) != null) {
-            path.add(segment);
-            cursor = segment.from().equals(cursor) ? segment.to() : segment.from();
+        while (true) {
+            Segment segment = bestSegment.get(cursor);
+            if (segment == null) {
+                break;
+            }
+            Stop previous = segment.from().equals(cursor) ? segment.to() : segment.from();
+            path.add(new Segment(previous, cursor, segment.mode(), segment.duration(), segment.distanceMeters()));
+            cursor = previous;
         }
         Collections.reverse(path);
         if (path.isEmpty()) {
